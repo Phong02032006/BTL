@@ -133,7 +133,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="src\ball.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\paddle.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ball.h" />
+    <ClInclude Include="src\paddle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
