@@ -1,4 +1,4 @@
-#include "paddle.h"
+﻿#include "paddle.h"
 #include <algorithm>
 Paddle::Paddle(int x, int y, int sh) :screenHeight(sh) {
     rect.x = x;

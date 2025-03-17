@@ -1,25 +1,24 @@
-
-#include "SDL.h"
+﻿#include "SDL.h"
 #include "Paddle.h"
-#include "Ball.h"
+#include <iostream>
+#include "ball.h"
+
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
 
-    const int SCREEN_WIDTH = 800;
-    const int SCREEN_HEIGHT = 600;
-
-    SDL_Window* window = SDL_CreateWindow("Paddle Test",
+    SDL_Window* window = SDL_CreateWindow("Game LTNC",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1,
-        SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1,SDL_RENDERER_ACCELERATED);
 
     Paddle left_paddle(20, SCREEN_HEIGHT / 2 - Paddle::PADDLE_HEIGHT / 2, SCREEN_HEIGHT);
     Paddle right_paddle(SCREEN_WIDTH - 20 - Paddle::PADDLE_WIDTH, SCREEN_HEIGHT / 2 - Paddle::PADDLE_HEIGHT / 2, SCREEN_HEIGHT);
 	Ball ball(SCREEN_WIDTH / 2 - Ball::BALL_SIZE / 2, SCREEN_HEIGHT / 2 - Ball::BALL_SIZE / 2);
-                                                        
+    
     bool running = true;
     while (running) {
         SDL_Event event;
@@ -29,27 +28,25 @@ int main(int argc, char* argv[]) {
             }
         }
 
-       
         const Uint8* state = SDL_GetKeyboardState(NULL);
         if (state[SDL_SCANCODE_W]) left_paddle.move(true);
         if (state[SDL_SCANCODE_S]) left_paddle.move(false);
         if (state[SDL_SCANCODE_UP]) right_paddle.move(true);
         if (state[SDL_SCANCODE_DOWN]) right_paddle.move(false);
 
-
+		ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, left_paddle.getRect());
+		ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, right_paddle.getRect());
         
+
+        // Vẽ lại màn hình
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-
         left_paddle.render(renderer);
         right_paddle.render(renderer);
 		ball.render(renderer);
-
         SDL_RenderPresent(renderer);
-
-        SDL_Delay(16); // ~60 FPS
+        SDL_Delay(16); 
     }
-
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
