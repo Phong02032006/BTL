@@ -135,10 +135,12 @@
   <ItemGroup>
     <ClCompile Include="src\ball.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\menu.cpp" />
     <ClCompile Include="src\paddle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ball.h" />
+    <ClInclude Include="src\menu.h" />
     <ClInclude Include="src\paddle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
