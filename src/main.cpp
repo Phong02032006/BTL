@@ -69,8 +69,8 @@ bool showMenu(SDL_Renderer* renderer, TTF_Font* font) {
         SDL_RenderCopy(renderer, image_texture, NULL, &image_rect);
 
         // Render title text
-        SDL_Color white = { 0, 0, 255, 255 };
-        SDL_Surface* title_surface = TTF_RenderText_Solid(font, "GAME LTNC", white);
+        SDL_Color blue = { 0, 0, 255, 255 };
+        SDL_Surface* title_surface = TTF_RenderText_Solid(font, "GAME LTNC", blue);
         SDL_Texture* title_texture = SDL_CreateTextureFromSurface(renderer, title_surface);
         SDL_Rect title_rect = { SCREEN_WIDTH / 2 - title_surface->w / 2, 50, title_surface->w, title_surface->h };
         SDL_RenderCopy(renderer, title_texture, NULL, &title_rect);
@@ -78,14 +78,14 @@ bool showMenu(SDL_Renderer* renderer, TTF_Font* font) {
         SDL_DestroyTexture(title_texture);
 
         // Render "Play" button
-        SDL_Surface* play_surface = TTF_RenderText_Solid(font, "Play", white);
+        SDL_Surface* play_surface = TTF_RenderText_Solid(font, "Play", blue);
         SDL_Texture* play_texture = SDL_CreateTextureFromSurface(renderer, play_surface);
         SDL_RenderCopy(renderer, play_texture, NULL, &play_rect);
         SDL_FreeSurface(play_surface);
         SDL_DestroyTexture(play_texture);
 
         // Render "Quit" button
-        SDL_Surface* quit_surface = TTF_RenderText_Solid(font, "Quit", white);
+        SDL_Surface* quit_surface = TTF_RenderText_Solid(font, "Quit", blue);
         SDL_Texture* quit_texture = SDL_CreateTextureFromSurface(renderer, quit_surface);
         SDL_RenderCopy(renderer, quit_texture, NULL, &quit_rect);
         SDL_FreeSurface(quit_surface);
@@ -99,6 +99,90 @@ bool showMenu(SDL_Renderer* renderer, TTF_Font* font) {
     SDL_DestroyTexture(image_texture);
     return startGame;
 }
+
+
+bool showPauseMenu(SDL_Renderer* renderer, TTF_Font* font) {
+    bool menuRunning = true;
+    bool continueGame = false;
+
+    // Tải ảnh nền của menu tạm dừng
+    SDL_Surface* image_surface = IMG_Load("assets/pause_menu.png");
+    if (!image_surface) {
+        std::cerr << "Failed to load pause menu image: " << IMG_GetError() << std::endl;
+        return false;
+    }
+    SDL_Texture* image_texture = SDL_CreateTextureFromSurface(renderer, image_surface);
+    SDL_FreeSurface(image_surface);
+
+    // Định vị nút "Continue" và "Quit"
+    SDL_Rect continue_rect = { SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 50, 100, 50 };
+    SDL_Rect quit_rect = { SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 50, 100, 50 };
+
+    while (menuRunning) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                menuRunning = false;
+            }
+            else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_RETURN) {
+                    continueGame = true;
+                    menuRunning = false;
+                }
+                else if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    menuRunning = false;
+                }
+            }
+            else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if (x >= continue_rect.x && x <= continue_rect.x + continue_rect.w &&
+                    y >= continue_rect.y && y <= continue_rect.y + continue_rect.h) {
+                    continueGame = true;
+                    menuRunning = false;
+                }
+                else if (x >= quit_rect.x && x <= quit_rect.x + quit_rect.w &&
+                    y >= quit_rect.y && y <= quit_rect.y + quit_rect.h) {
+                    menuRunning = false;
+                }
+            }
+        }
+
+        // Xóa màn hình
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // Hiển thị ảnh nền
+        SDL_Rect image_rect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+        SDL_RenderCopy(renderer, image_texture, NULL, &image_rect);
+
+        // Hiển thị chữ "Continue"
+        SDL_Color white = { 255, 255, 255, 255 };
+        SDL_Surface* continue_surface = TTF_RenderText_Solid(font, "Continue", white);
+        SDL_Texture* continue_texture = SDL_CreateTextureFromSurface(renderer, continue_surface);
+        SDL_RenderCopy(renderer, continue_texture, NULL, &continue_rect);
+        SDL_FreeSurface(continue_surface);
+        SDL_DestroyTexture(continue_texture);
+
+        // Hiển thị chữ "Quit"
+        SDL_Surface* quit_surface = TTF_RenderText_Solid(font, "Quit", white);
+        SDL_Texture* quit_texture = SDL_CreateTextureFromSurface(renderer, quit_surface);
+        SDL_RenderCopy(renderer, quit_texture, NULL, &quit_rect);
+        SDL_FreeSurface(quit_surface);
+        SDL_DestroyTexture(quit_texture);
+
+        // Cập nhật màn hình
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
+    }
+
+    SDL_DestroyTexture(image_texture);
+    return continueGame;
+}
+
+
+
+
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     if (TTF_Init() == -1) {
@@ -107,6 +191,10 @@ int main(int argc, char* argv[]) {
     }
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
         std::cerr << "Failed to initialize SDL_mixer: " << Mix_GetError() << std::endl;
+        return -1;
+    }
+    if (IMG_Init(IMG_INIT_PNG) == 0) {
+        std::cerr << "Failed to initialize SDL_image: " << IMG_GetError() << std::endl;
         return -1;
     }
 
@@ -122,7 +210,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    Mix_Chunk* paddle_hit_sound = Mix_LoadWAV("assets/sound2.wav");
+    paddle_hit_sound = Mix_LoadWAV("assets/sound2.wav");
     if (!paddle_hit_sound) {
         std::cerr << "Failed to load sound effect: " << Mix_GetError() << std::endl;
         return -1;
@@ -133,6 +221,7 @@ int main(int argc, char* argv[]) {
         TTF_CloseFont(font);
         TTF_Quit();
         Mix_CloseAudio();
+        IMG_Quit();
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
@@ -156,6 +245,13 @@ int main(int argc, char* argv[]) {
         }
 
         const Uint8* state = SDL_GetKeyboardState(NULL);
+
+        if (state[SDL_SCANCODE_ESCAPE]) {
+            if (!showPauseMenu(renderer, font)) { // Nếu chọn Quit trong menu Pause, thoát game
+                running = false;
+            }
+        }
+
         if (state[SDL_SCANCODE_W]) left_paddle.move(true);
         if (state[SDL_SCANCODE_S]) left_paddle.move(false);
         if (state[SDL_SCANCODE_UP]) right_paddle.move(true);
@@ -165,14 +261,12 @@ int main(int argc, char* argv[]) {
         ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, right_paddle.getRect());
 
         // Update scores
-        if (ball.getRect().x <= 0) {
+        if (ball.getRect().x <= 5) { // Thay vì 0, cho phép khoảng nhỏ hơn
             right_score++;
-            std::cout << "Right score: " << right_score << std::endl;
             ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
         }
-        else if (ball.getRect().x + ball.getRect().w >= SCREEN_WIDTH) {
+        else if (ball.getRect().x + ball.getRect().w >= SCREEN_WIDTH - 5) {
             left_score++;
-            std::cout << "Left score: " << left_score << std::endl;
             ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
         }
 
@@ -222,12 +316,9 @@ int main(int argc, char* argv[]) {
     TTF_CloseFont(font);
     TTF_Quit();
     Mix_CloseAudio();
+    IMG_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
 }
-
-
-
-

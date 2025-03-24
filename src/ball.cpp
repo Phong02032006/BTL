@@ -53,12 +53,10 @@ bool Ball::checkCollision(const SDL_Rect& rect) const {
 }
 
 void Ball::handleCollision(const SDL_Rect& rect) {
-    
     if (paddle_hit_sound) {
         Mix_PlayChannel(-1, paddle_hit_sound, 0);
         
     }
-
     reverseX();
 }
 
