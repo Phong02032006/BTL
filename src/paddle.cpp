@@ -17,6 +17,8 @@ void Paddle::move(bool up) {
     rect.y = std::max(0, std::min(screenHeight - PADDLE_HEIGHT, rect.y));
 }
 
+
+
 void Paddle::render(SDL_Renderer* renderer) const {
     SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderFillRect(renderer, &rect);

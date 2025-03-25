@@ -3,5 +3,10 @@
 #include "SDL_ttf.h"
 #include "SDL_image.h"
 
-bool showMenu(SDL_Renderer* renderer, TTF_Font* font);
-bool showPauseMenu(SDL_Renderer* renderer, TTF_Font* font);
+enum GameMode {
+    PVP,
+    PVE
+};
+
+bool showMenu(SDL_Renderer* renderer, TTF_Font* font, GameMode& gameMode, int& difficulty);
+int showPauseMenu(SDL_Renderer* renderer, TTF_Font* font);

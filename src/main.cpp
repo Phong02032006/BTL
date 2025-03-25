@@ -3,17 +3,17 @@
 #include "SDL_mixer.h"
 #include "SDL_image.h"
 #include "Paddle.h"
-#include <iostream>
-#include "ball.h"
-#include <string>
+#include "Ball.h"
+#include "bot.h"
 #include "menu.h"
+#include <iostream>
+#include <string>
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int LINE_THICKNESS = 5;
 
 extern Mix_Chunk* paddle_hit_sound;
-
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -48,100 +48,117 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    if (!showMenu(renderer, font)) {
-        // User chose to quit from the menu
-        TTF_CloseFont(font);
-        TTF_Quit();
-        Mix_CloseAudio();
-        IMG_Quit();
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return 0;
-    }
+    while (true) {
+        GameMode gameMode;
+        int difficulty = 1; // Default difficulty level
+        if (!showMenu(renderer, font, gameMode, difficulty)) {
+            break;
+        }
 
-    Paddle left_paddle(20, SCREEN_HEIGHT / 2 - Paddle::PADDLE_HEIGHT / 2, SCREEN_HEIGHT);
-    Paddle right_paddle(SCREEN_WIDTH - 20 - Paddle::PADDLE_WIDTH, SCREEN_HEIGHT / 2 - Paddle::PADDLE_HEIGHT / 2, SCREEN_HEIGHT);
-    Ball ball(SCREEN_WIDTH / 2 - Ball::BALL_SIZE / 2, SCREEN_HEIGHT / 2 - Ball::BALL_SIZE / 2);
+        Paddle left_paddle(20, SCREEN_HEIGHT / 2 - Paddle::PADDLE_HEIGHT / 2, SCREEN_HEIGHT);
+        Paddle right_paddle(SCREEN_WIDTH - 20 - Paddle::PADDLE_WIDTH, SCREEN_HEIGHT / 2 - Paddle::PADDLE_HEIGHT / 2, SCREEN_HEIGHT);
+        Ball ball(SCREEN_WIDTH / 2 - Ball::BALL_SIZE / 2, SCREEN_HEIGHT / 2 - Ball::BALL_SIZE / 2);
 
-    int left_score = 0;
-    int right_score = 0;
+        Bot* bot = nullptr;
+        if (gameMode == PVE) {
+            bot = new Bot(right_paddle, ball, difficulty);
+        }
 
-    bool running = true;
-    while (running) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;
+        int left_score = 0;
+        int right_score = 0;
+
+        bool running = true;
+        while (running) {
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    running = false;
+                    break;
+                }
+                else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+                    int pauseResult = showPauseMenu(renderer, font);
+                    if (pauseResult == -1) {
+                        running = false;
+                    }
+                    else if (pauseResult == 1) {
+                        running = false;
+                        break;
+                    }
+                }
             }
-        }
 
-        const Uint8* state = SDL_GetKeyboardState(NULL);
+            if (!running) break;
 
-        if (state[SDL_SCANCODE_ESCAPE]) {
-            if (!showPauseMenu(renderer, font)) { 
-                running = false;
+            const Uint8* state = SDL_GetKeyboardState(NULL);
+            if (state[SDL_SCANCODE_W]) left_paddle.move(true);
+            if (state[SDL_SCANCODE_S]) left_paddle.move(false);
+
+            if (gameMode == PVP) {
+                if (state[SDL_SCANCODE_UP]) right_paddle.move(true);
+                if (state[SDL_SCANCODE_DOWN]) right_paddle.move(false);
             }
+            else if (gameMode == PVE) {
+                bot->update();
+            }
+
+            ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, left_paddle.getRect());
+            ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, right_paddle.getRect());
+
+            // Update scores
+            if (ball.getRect().x <= 5) { // Thay vì 0, cho phép khoảng nhỏ hơn
+                right_score++;
+                ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
+            }
+            else if (ball.getRect().x + ball.getRect().w >= SCREEN_WIDTH - 5) {
+                left_score++;
+                ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
+            }
+
+            // Clear screen
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
+
+            // Render paddles and ball
+            left_paddle.render(renderer);
+            right_paddle.render(renderer);
+            ball.render(renderer);
+
+            // Render center line (net)
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            for (int y = 0; y < SCREEN_HEIGHT; y += 15) {
+                SDL_RenderDrawLine(renderer, SCREEN_WIDTH / 2, y, SCREEN_WIDTH / 2, y + 10);
+            }
+
+            // Render top and bottom horizontal lines with thickness
+            for (int i = 0; i < LINE_THICKNESS; ++i) {
+                SDL_RenderDrawLine(renderer, 0, i, SCREEN_WIDTH, i); // Top line
+                SDL_RenderDrawLine(renderer, 0, SCREEN_HEIGHT - 1 - i, SCREEN_WIDTH, SCREEN_HEIGHT - 1 - i); // Bottom line
+            }
+
+            // Render scores
+            SDL_Color white = { 255, 255, 255, 255 };
+            SDL_Surface* left_score_surface = TTF_RenderText_Solid(font, std::to_string(left_score).c_str(), white);
+            SDL_Texture* left_score_texture = SDL_CreateTextureFromSurface(renderer, left_score_surface);
+            SDL_Rect left_score_rect = { SCREEN_WIDTH / 4 - left_score_surface->w / 2, 20, left_score_surface->w, left_score_surface->h };
+            SDL_RenderCopy(renderer, left_score_texture, NULL, &left_score_rect);
+            SDL_FreeSurface(left_score_surface);
+            SDL_DestroyTexture(left_score_texture);
+
+            SDL_Surface* right_score_surface = TTF_RenderText_Solid(font, std::to_string(right_score).c_str(), white);
+            SDL_Texture* right_score_texture = SDL_CreateTextureFromSurface(renderer, right_score_surface);
+            SDL_Rect right_score_rect = { 3 * SCREEN_WIDTH / 4 - right_score_surface->w / 2, 20, right_score_surface->w, right_score_surface->h };
+            SDL_RenderCopy(renderer, right_score_texture, NULL, &right_score_rect);
+            SDL_FreeSurface(right_score_surface);
+            SDL_DestroyTexture(right_score_texture);
+
+            // Present the updated screen
+            SDL_RenderPresent(renderer);
+            SDL_Delay(16);
         }
 
-        if (state[SDL_SCANCODE_W]) left_paddle.move(true);
-        if (state[SDL_SCANCODE_S]) left_paddle.move(false);
-        if (state[SDL_SCANCODE_UP]) right_paddle.move(true);
-        if (state[SDL_SCANCODE_DOWN]) right_paddle.move(false);
-
-        ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, left_paddle.getRect());
-        ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, right_paddle.getRect());
-
-        // Update scores
-        if (ball.getRect().x <= 5) { 
-            right_score++;
-            ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
+        if (bot) {
+            delete bot;
         }
-        else if (ball.getRect().x + ball.getRect().w >= SCREEN_WIDTH - 5) {
-            left_score++;
-            ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
-        }
-
-        // Clear screen
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        // Render paddles and ball
-        left_paddle.render(renderer);
-        right_paddle.render(renderer);
-        ball.render(renderer);
-
-        // Render center line (net)
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        for (int y = 0; y < SCREEN_HEIGHT; y += 15) {
-            SDL_RenderDrawLine(renderer, SCREEN_WIDTH / 2, y, SCREEN_WIDTH / 2, y + 10);
-        }
-
-        // Render top and bottom horizontal lines with thickness
-        for (int i = 0; i < LINE_THICKNESS; ++i) {
-            SDL_RenderDrawLine(renderer, 0, i, SCREEN_WIDTH, i); // Top line
-            SDL_RenderDrawLine(renderer, 0, SCREEN_HEIGHT - 1 - i, SCREEN_WIDTH, SCREEN_HEIGHT - 1 - i); // Bottom line
-        }
-
-        // Render scores
-        SDL_Color white = { 255, 255, 255, 255 };
-        SDL_Surface* left_score_surface = TTF_RenderText_Solid(font, std::to_string(left_score).c_str(), white);
-        SDL_Texture* left_score_texture = SDL_CreateTextureFromSurface(renderer, left_score_surface);
-        SDL_Rect left_score_rect = { SCREEN_WIDTH / 4 - left_score_surface->w / 2, 20, left_score_surface->w, left_score_surface->h };
-        SDL_RenderCopy(renderer, left_score_texture, NULL, &left_score_rect);
-        SDL_FreeSurface(left_score_surface);
-        SDL_DestroyTexture(left_score_texture);
-
-        SDL_Surface* right_score_surface = TTF_RenderText_Solid(font, std::to_string(right_score).c_str(), white);
-        SDL_Texture* right_score_texture = SDL_CreateTextureFromSurface(renderer, right_score_surface);
-        SDL_Rect right_score_rect = { 3 * SCREEN_WIDTH / 4 - right_score_surface->w / 2, 20, right_score_surface->w, right_score_surface->h };
-        SDL_RenderCopy(renderer, right_score_texture, NULL, &right_score_rect);
-        SDL_FreeSurface(right_score_surface);
-        SDL_DestroyTexture(right_score_texture);
-
-        // Present the updated screen
-        SDL_RenderPresent(renderer);
-        SDL_Delay(16);
     }
 
     Mix_FreeChunk(paddle_hit_sound);
