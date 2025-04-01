@@ -17,6 +17,7 @@ public:
     void reverseX() { xVel = -xVel; }
     void reverseY() { yVel = -yVel; }
     void reset(int x, int y);
+   
 
 private:
     SDL_Rect rect;

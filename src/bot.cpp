@@ -1,69 +1,54 @@
 ﻿#include "bot.h"
+#include "ball.h"
 #include <cmath>
+const int SCREEN_HEIGHT = 600;
 
 Bot::Bot(Paddle& paddle, const Ball& ball, int difficulty)
     : paddle(paddle), ball(ball), difficulty(difficulty) {
 }
 
+
 void Bot::update() {
     int ballY = ball.getRect().y;
     int paddleY = paddle.getRect().y;
 
-    // Adjust the bot's movement speed and reaction delay based on the difficulty level
+    // Điều chỉnh tốc độ và độ khó
     float speed = Paddle::PADDLE_SPEED;
-    int reactionDelay = 0;
     float predictionFactor = 1.0f;
 
     if (difficulty == 1) {
-        speed *= 0.75; // Easy: slower speed
-        reactionDelay = 6; // Easy: longer delay
-        predictionFactor = 0.5f; // Easy: less accurate prediction
+        speed *= 1.5; // Dễ: tốc độ chậm hơn
+        predictionFactor = 0.2f; // Dự đoán ít chính xác hơn
+		
     }
     else if (difficulty == 2) {
-        speed *= 1.0; // Medium: normal speed
-        reactionDelay = 2; // Medium: shorter delay
-        predictionFactor = 0.75f; // Medium: moderately accurate prediction
+        speed *= 3.6; // Trung bình: tốc độ bình thường
+        predictionFactor = 0.85f; // Dự đoán tương đối chính xác
     }
     else if (difficulty == 3) {
-        speed *= 1.5; // Hard: faster speed
-        reactionDelay = 0; // Hard: no delay
-        predictionFactor = 1.0f; // Hard: accurate prediction
+        speed *= 5.0; // Khó: tốc độ nhanh hơn
+        predictionFactor = 1.0f; // Dự đoán chính xác
     }
 
-    static int frameCounter = 0;
-    if (frameCounter < reactionDelay) {
-        frameCounter++;
-    }
-    else {
-        frameCounter = 0;
-    }
-
-
-    // Predict the future position of the ball
+    // Dự đoán vị trí bóng trong tương lai
     int predictedBallY = ballY + static_cast<int>(ball.yVel * predictionFactor);
 
-    // Adjust the prediction based on the ball's direction and speed
-    if (ball.yVel > 0) {
-        predictedBallY += ball.yVel * predictionFactor;
-    }
-    else {
-        predictedBallY -= ball.yVel * predictionFactor;
-    }
-
-    // Introduce a small amount of randomness to the bot's movement
+    // Thêm yếu tố ngẫu nhiên nhỏ để bot không quá hoàn hảo
     predictedBallY += rand() % 6 - 3;
 
-    // Move the paddle smoothly towards the predicted position
-    // Tính toán vị trí mới của paddle dựa trên tốc độ
-    int targetY = paddleY + (predictedBallY - (paddleY + Paddle::PADDLE_HEIGHT / 2)) * 0.1f;
-    if (targetY < paddleY) {
-        paddle.move(true);
-    }
-    else if (targetY > paddleY) {
-        paddle.move(false);
-    }
+    // Tính toán vị trí đích của paddle
+    int targetY = predictedBallY - Paddle::PADDLE_HEIGHT / 2;
 
+    // Sử dụng interpolation để di chuyển mượt mà
+    float deltaY = targetY - paddleY;
+    float dampingFactor = 0.2f; // Yếu tố giảm xóc để làm mượt chuyển động
+    paddle.rect.y += static_cast<int>(deltaY * dampingFactor);
 
+    // Đảm bảo paddle không di chuyển ra khỏi màn hình
+    if (paddle.rect.y < 0) {
+        paddle.rect.y = 0;
+    }
+    else if (paddle.rect.y > SCREEN_HEIGHT - Paddle::PADDLE_HEIGHT) {
+        paddle.rect.y = SCREEN_HEIGHT - Paddle::PADDLE_HEIGHT;
+    }
 }
-
-

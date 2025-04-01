@@ -9,7 +9,8 @@ public:
     void move(bool up);
     void render(SDL_Renderer* renderer) const;
     SDL_Rect& getRect();
-private:
     SDL_Rect rect;
+private:
+    
     int screenHeight;
 };
