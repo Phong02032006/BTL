@@ -13,7 +13,12 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int LINE_THICKNESS = 5;
 
+const int WINNING_SCORE = 5; // Số điểm cần để thắng
+bool gameOver = false;
+std::string winnerText = "";
+
 extern Mix_Chunk* paddle_hit_sound;
+Mix_Chunk* buttonClickSound = nullptr;
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -48,10 +53,35 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    buttonClickSound = Mix_LoadWAV("assets/button_click.wav");
+    if (!buttonClickSound) {
+        std::cerr << "Failed to load button click sound effect: " << Mix_GetError() << std::endl;
+        return -1;
+    }
+
+    // Load background music
+    Mix_Music* backgroundMusic = Mix_LoadMUS("assets/background_music3.wav");
+    if (!backgroundMusic) {
+        std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
+        return -1;
+    }
+    bool musicPlaying = true;
+
+    // Load music note icon
+    SDL_Surface* music_note_surface = IMG_Load("assets/music_note.png");
+    if (!music_note_surface) {
+        std::cerr << "Failed to load music note icon: " << IMG_GetError() << std::endl;
+        return -1;
+    }
+    SDL_Texture* music_note_texture = SDL_CreateTextureFromSurface(renderer, music_note_surface);
+    SDL_FreeSurface(music_note_surface);
+    SDL_SetTextureBlendMode(music_note_texture, SDL_BLENDMODE_BLEND);
+
     while (true) {
         GameMode gameMode;
         int difficulty = 1; // Default difficulty level
-        if (!showMenu(renderer, font, gameMode, difficulty)) {
+        if (!showMenu(renderer, font, gameMode, difficulty, backgroundMusic, musicPlaying, music_note_texture)) {
+            // User chose to quit from the menu
             break;
         }
 
@@ -85,6 +115,22 @@ int main(int argc, char* argv[]) {
                         break;
                     }
                 }
+                else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                    int x, y;
+                    SDL_GetMouseState(&x, &y);
+                    SDL_Rect music_toggle_rect = { SCREEN_WIDTH - 60, 20, 40, 40 };
+                    if (x >= music_toggle_rect.x && x <= music_toggle_rect.x + music_toggle_rect.w &&
+                        y >= music_toggle_rect.y && y <= music_toggle_rect.y + music_toggle_rect.h) {
+                        Mix_PlayChannel(-1, buttonClickSound, 0); // Play button click sound
+                        if (musicPlaying) {
+                            Mix_PauseMusic();
+                        }
+                        else {
+                            Mix_ResumeMusic();
+                        }
+                        musicPlaying = !musicPlaying;
+                    }
+                }
             }
 
             if (!running) break;
@@ -105,13 +151,22 @@ int main(int argc, char* argv[]) {
             ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, right_paddle.getRect());
 
             // Update scores
-            if (ball.getRect().x <= 5) { // Thay vì 0, cho phép khoảng nhỏ hơn
+            if (ball.getRect().x <= 5) {
                 right_score++;
                 ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
             }
             else if (ball.getRect().x + ball.getRect().w >= SCREEN_WIDTH - 5) {
                 left_score++;
                 ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
+            }
+
+            if (left_score >= WINNING_SCORE) {
+                gameOver = true;
+                winnerText = "Left Player Wins!";
+            }
+            else if (right_score >= WINNING_SCORE) {
+                gameOver = true;
+                winnerText = "Right Player Wins!";
             }
 
             // Clear screen
@@ -151,6 +206,41 @@ int main(int argc, char* argv[]) {
             SDL_FreeSurface(right_score_surface);
             SDL_DestroyTexture(right_score_texture);
 
+            // Render music toggle button
+            SDL_Rect music_toggle_rect = { SCREEN_WIDTH - 60, 20, 40, 40 };
+            SDL_RenderCopy(renderer, music_note_texture, NULL, &music_toggle_rect);
+
+            if (gameOver) {
+                // Tải ảnh nền chiến thắng
+                SDL_Surface* bg_surface = IMG_Load("assets/win_background.png");
+                if (!bg_surface) {
+                    std::cerr << "Failed to load win background: " << IMG_GetError() << std::endl;
+                }
+                else {
+                    SDL_Texture* bg_texture = SDL_CreateTextureFromSurface(renderer, bg_surface);
+                    SDL_FreeSurface(bg_surface);
+
+                    // Hiển thị ảnh nền
+                    SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
+                    SDL_DestroyTexture(bg_texture);
+                }
+
+                // Hiển thị thông báo chiến thắng
+                SDL_Color red = { 255, 0, 0, 255 };
+                SDL_Surface* winner_surface = TTF_RenderText_Solid(font, winnerText.c_str(), red);
+                SDL_Texture* winner_texture = SDL_CreateTextureFromSurface(renderer, winner_surface);
+                SDL_Rect winner_rect = { SCREEN_WIDTH / 2 - winner_surface->w / 2, SCREEN_HEIGHT / 2, winner_surface->w, winner_surface->h };
+                SDL_RenderCopy(renderer, winner_texture, NULL, &winner_rect);
+
+                SDL_RenderPresent(renderer);
+
+                SDL_FreeSurface(winner_surface);
+                SDL_DestroyTexture(winner_texture);
+
+                SDL_Delay(3000);
+                running = false;
+            }
+
             // Present the updated screen
             SDL_RenderPresent(renderer);
             SDL_Delay(16);
@@ -161,7 +251,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    SDL_DestroyTexture(music_note_texture);
+    Mix_FreeMusic(backgroundMusic);
     Mix_FreeChunk(paddle_hit_sound);
+    Mix_FreeChunk(buttonClickSound);
     TTF_CloseFont(font);
     TTF_Quit();
     Mix_CloseAudio();

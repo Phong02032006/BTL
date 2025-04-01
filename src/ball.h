@@ -4,6 +4,8 @@
 class Ball {
 public:
     static const int BALL_SIZE = 15;
+    int xVel;
+    int yVel;
 
     Ball(int x, int y);
 
@@ -18,6 +20,5 @@ public:
 
 private:
     SDL_Rect rect;
-    int xVel;
-    int yVel;
+    
 };
