@@ -14,4 +14,4 @@ bool showMenu(SDL_Renderer* renderer, TTF_Font* font, GameMode& gameMode, int& d
 
 int showPauseMenu(SDL_Renderer* renderer, TTF_Font* font);
 
-#endif // MENU_H
+#endif 

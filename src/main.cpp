@@ -98,21 +98,21 @@ int main(int argc, char* argv[]) {
         Ball ball(SCREEN_WIDTH / 2 - Ball::BALL_SIZE / 2, SCREEN_HEIGHT / 2 - Ball::BALL_SIZE / 2);
 
         if (difficulty == 1) {
-            ball.xVel = (rand() % 3 + 2); // Vận tốc ngang (2-4)
-            ball.yVel = (rand() % 3 + 2); // Vận tốc dọc (2-4)
+            ball.xVel = (rand() % 3 + 2); 
+            ball.yVel = (rand() % 3 + 2); 
         }
         else if (difficulty == 2) {
-            ball.xVel = (rand() % 4 + 4); // Vận tốc ngang (4-7)
-            ball.yVel = (rand() % 4 + 4); // Vận tốc dọc (4-7)
+            ball.xVel = (rand() % 4 + 4); 
+            ball.yVel = (rand() % 4 + 4); 
         }
         else if (difficulty == 3) {
-            ball.xVel = (rand() % 5 + 7); // Vận tốc ngang (7-11)
-            ball.yVel = (rand() % 5 + 7); // Vận tốc dọc (7-11)
+            ball.xVel = (rand() % 5 + 7); 
+            ball.yVel = (rand() % 5 + 7); 
         }
 
-        // Đảm bảo bóng không di chuyển quá chậm hoặc ngẫu nhiên hướng
-        if (rand() % 2 == 0) ball.xVel = -ball.xVel; // Ngẫu nhiên hướng ngang
-        if (rand() % 2 == 0) ball.yVel = -ball.yVel; // Ngẫu nhiên hướng dọc
+       
+        if (rand() % 2 == 0) ball.xVel = -ball.xVel; 
+        if (rand() % 2 == 0) ball.yVel = -ball.yVel;
 
 
         Bot* bot = nullptr;
@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
                     SDL_Rect music_toggle_rect = { SCREEN_WIDTH - 60, 20, 40, 40 };
                     if (x >= music_toggle_rect.x && x <= music_toggle_rect.x + music_toggle_rect.w &&
                         y >= music_toggle_rect.y && y <= music_toggle_rect.y + music_toggle_rect.h) {
-                        Mix_PlayChannel(-1, buttonClickSound, 0); // Play button click sound
+                        Mix_PlayChannel(-1, buttonClickSound, 0); 
                         if (musicPlaying) {
                             Mix_PauseMusic();
                         }
@@ -200,28 +200,25 @@ int main(int argc, char* argv[]) {
                 winnerText = "Right Player Wins!";
             }
 
-            // Clear screen
+           
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
 
-            // Render paddles and ball
             left_paddle.render(renderer);
             right_paddle.render(renderer);
             ball.render(renderer);
 
-            // Render center line (net)
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             for (int y = 0; y < SCREEN_HEIGHT; y += 15) {
                 SDL_RenderDrawLine(renderer, SCREEN_WIDTH / 2, y, SCREEN_WIDTH / 2, y + 10);
             }
 
-            // Render top and bottom horizontal lines with thickness
+           
             for (int i = 0; i < LINE_THICKNESS; ++i) {
-                SDL_RenderDrawLine(renderer, 0, i, SCREEN_WIDTH, i); // Top line
-                SDL_RenderDrawLine(renderer, 0, SCREEN_HEIGHT - 1 - i, SCREEN_WIDTH, SCREEN_HEIGHT - 1 - i); // Bottom line
+                SDL_RenderDrawLine(renderer, 0, i, SCREEN_WIDTH, i); 
+                SDL_RenderDrawLine(renderer, 0, SCREEN_HEIGHT - 1 - i, SCREEN_WIDTH, SCREEN_HEIGHT - 1 - i);
             }
 
-            // Render scores
             SDL_Color white = { 255, 255, 255, 255 };
             SDL_Surface* left_score_surface = TTF_RenderText_Solid(font, std::to_string(left_score).c_str(), white);
             SDL_Texture* left_score_texture = SDL_CreateTextureFromSurface(renderer, left_score_surface);
@@ -237,7 +234,6 @@ int main(int argc, char* argv[]) {
             SDL_FreeSurface(right_score_surface);
             SDL_DestroyTexture(right_score_texture);
 
-            // Render music toggle button
             SDL_Rect music_toggle_rect = { SCREEN_WIDTH - 60, 20, 40, 40 };
             if (musicPlaying) {
                 SDL_RenderCopy(renderer, music_note_texture, NULL, &music_toggle_rect);
@@ -249,11 +245,11 @@ int main(int argc, char* argv[]) {
             if (gameMode == PVE) {
                 if (left_score >= WINNING_SCORE) {
                     gameOver = true;
-                    winnerText = "You Win!"; // Người chơi thắng
+                    winnerText = "You Win!"; 
                 }
                 else if (right_score >= WINNING_SCORE) {
                     gameOver = true;
-                    winnerText = "You Lose!"; // Bot thắng
+                    winnerText = "You Lose!"; 
                 }
             }
             else if (gameMode == PVP) {
@@ -268,16 +264,16 @@ int main(int argc, char* argv[]) {
             }
 
             if (gameOver) {
-                // Tải ảnh nền chiến thắng hoặc thất bại
+                
                 SDL_Surface* bg_surface = nullptr;
                 if (winnerText == "You Win!") {
-                    bg_surface = IMG_Load("assets/win_background.png"); // Ảnh nền chiến thắng
+                    bg_surface = IMG_Load("assets/win_background.png"); 
                 }
                 else if (winnerText == "Left Player Wins!" || winnerText == "Right Player Wins!") {
                     bg_surface = IMG_Load("assets/win_background.png");
                 }
                 else if (winnerText == "You Lose!") {
-                    bg_surface = IMG_Load("assets/lose_background.png"); // Ảnh nền thất bại
+                    bg_surface = IMG_Load("assets/lose_background.png"); 
                 }
 
                 if (!bg_surface) {
@@ -287,13 +283,13 @@ int main(int argc, char* argv[]) {
                     SDL_Texture* bg_texture = SDL_CreateTextureFromSurface(renderer, bg_surface);
                     SDL_FreeSurface(bg_surface);
 
-                    // Hiển thị ảnh nền
+                    
                     SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
                     SDL_DestroyTexture(bg_texture);
                 }
 
-                // Hiển thị thông báo kết quả
-                SDL_Color color = { 255, 0, 0, 255 }; // Màu đỏ cho chữ
+                
+                SDL_Color color = { 255, 0, 0, 255 }; 
                 SDL_Surface* winner_surface = TTF_RenderText_Solid(font, winnerText.c_str(), color);
                 SDL_Texture* winner_texture = SDL_CreateTextureFromSurface(renderer, winner_surface);
                 SDL_Rect winner_rect = { SCREEN_WIDTH / 2 - winner_surface->w / 2, SCREEN_HEIGHT / 2, winner_surface->w, winner_surface->h };
@@ -304,7 +300,7 @@ int main(int argc, char* argv[]) {
                 SDL_FreeSurface(winner_surface);
                 SDL_DestroyTexture(winner_texture);
 
-                SDL_Delay(3000); // Đợi 3 giây trước khi thoát
+                SDL_Delay(3000); 
                 bool waitForEsc = true;
                 while (waitForEsc) {
                     while (SDL_PollEvent(&event)) {
@@ -314,15 +310,15 @@ int main(int argc, char* argv[]) {
                     }
                 }
                 running = false;
-                gameOver = false; // Reset gameOver flag
-                winnerText = ""; // Reset winnerText
-                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear screen
+                gameOver = false; 
+                winnerText = ""; 
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
                 SDL_RenderClear(renderer);
                 SDL_RenderPresent(renderer);
             }
-            // Present the updated screen
+            
             SDL_RenderPresent(renderer);
-            SDL_Delay(16); // Giới hạn tốc độ khung hình
+            SDL_Delay(16); 
         }
 
         if (bot) {
