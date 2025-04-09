@@ -5,12 +5,12 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int BUTTON_WIDTH = 150;
 const int BUTTON_HEIGHT = 70;
-const int BUTTON_GAP = 30; // Gap between buttons
-const int EXTEND_WIDTH = 20; // Độ dài mở rộng về hai phía
+const int BUTTON_GAP = 30;
+const int EXTEND_WIDTH = 20;
 
 extern Mix_Chunk* buttonClickSound;
 
-bool showMenu(SDL_Renderer* renderer, TTF_Font* font, GameMode& gameMode, int& difficulty, Mix_Music* backgroundMusic, bool& musicPlaying, SDL_Texture* musicNoteTexture) {
+bool showMenu(SDL_Renderer* renderer, TTF_Font* font, GameMode& gameMode, int& difficulty, Mix_Music* backgroundMusic, bool& musicPlaying, SDL_Texture* musicNoteTexture, SDL_Texture* musicNoteSlashTexture) {
     bool menuRunning = true;
     bool startGame = false;
     bool selectingDifficulty = false;
@@ -178,7 +178,12 @@ bool showMenu(SDL_Renderer* renderer, TTF_Font* font, GameMode& gameMode, int& d
             SDL_RenderDrawRect(renderer, &extended_quit_rect);
 
             // Render "Music Toggle" button
-            SDL_RenderCopy(renderer, musicNoteTexture, NULL, &music_toggle_rect);
+            if (musicPlaying) {
+                SDL_RenderCopy(renderer, musicNoteTexture, NULL, &music_toggle_rect);
+            }
+            else {
+                SDL_RenderCopy(renderer, musicNoteSlashTexture, NULL, &music_toggle_rect);
+            }
         }
         else {
             // Render "Easy" button
@@ -237,15 +242,15 @@ int showPauseMenu(SDL_Renderer* renderer, TTF_Font* font) {
     SDL_Texture* image_texture = SDL_CreateTextureFromSurface(renderer, image_surface);
     SDL_FreeSurface(image_surface);
 
-    // Define button rectangles with gaps
-    SDL_Rect continue_rect = { SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, SCREEN_HEIGHT / 2 - 100 - BUTTON_HEIGHT - BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT };
-    SDL_Rect main_menu_rect = { SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, SCREEN_HEIGHT / 2 - 100, BUTTON_WIDTH, BUTTON_HEIGHT };
-    SDL_Rect quit_rect = { SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, SCREEN_HEIGHT / 2 - 100 + BUTTON_HEIGHT + BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT };
+    int totalHeight = 2 * BUTTON_HEIGHT + BUTTON_GAP;
+    int startY = (SCREEN_HEIGHT - totalHeight) / 2;
+
+    SDL_Rect continue_rect = { SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, startY, BUTTON_WIDTH, BUTTON_HEIGHT };
+    SDL_Rect main_menu_rect = { SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, startY + BUTTON_HEIGHT + BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT };
 
     // Define extended rectangles for buttons
     SDL_Rect extended_continue_rect = { continue_rect.x - EXTEND_WIDTH, continue_rect.y, continue_rect.w + 2 * EXTEND_WIDTH, continue_rect.h };
     SDL_Rect extended_main_menu_rect = { main_menu_rect.x - EXTEND_WIDTH, main_menu_rect.y, main_menu_rect.w + 2 * EXTEND_WIDTH, main_menu_rect.h };
-    SDL_Rect extended_quit_rect = { quit_rect.x - EXTEND_WIDTH, quit_rect.y, quit_rect.w + 2 * EXTEND_WIDTH, quit_rect.h };
 
     while (menuRunning) {
         SDL_Event event;
@@ -273,12 +278,6 @@ int showPauseMenu(SDL_Renderer* renderer, TTF_Font* font) {
                     y >= main_menu_rect.y && y <= main_menu_rect.y + main_menu_rect.h) {
                     Mix_PlayChannel(-1, buttonClickSound, 0); // Play button click sound
                     returnValue = 1;
-                    menuRunning = false;
-                }
-                else if (x >= quit_rect.x && x <= quit_rect.x + quit_rect.w &&
-                    y >= quit_rect.y && y <= quit_rect.y + quit_rect.h) {
-                    Mix_PlayChannel(-1, buttonClickSound, 0); // Play button click sound
-                    returnValue = -1;
                     menuRunning = false;
                 }
             }
@@ -314,17 +313,6 @@ int showPauseMenu(SDL_Renderer* renderer, TTF_Font* font) {
         // Draw extended rectangle around "Main Menu" button
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderDrawRect(renderer, &extended_main_menu_rect);
-
-        // Render "Quit" button
-        SDL_Surface* quit_surface = TTF_RenderText_Solid(font, "Quit", white);
-        SDL_Texture* quit_texture = SDL_CreateTextureFromSurface(renderer, quit_surface);
-        SDL_RenderCopy(renderer, quit_texture, NULL, &quit_rect);
-        SDL_FreeSurface(quit_surface);
-        SDL_DestroyTexture(quit_texture);
-
-        // Draw extended rectangle around "Quit" button
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderDrawRect(renderer, &extended_quit_rect);
 
         // Present the updated screen
         SDL_RenderPresent(renderer);

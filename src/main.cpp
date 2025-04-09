@@ -8,12 +8,11 @@
 #include "menu.h"
 #include <iostream>
 #include <string>
-
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int LINE_THICKNESS = 5;
 
-const int WINNING_SCORE = 5; // Số điểm cần để thắng
+const int WINNING_SCORE = 5;
 bool gameOver = false;
 std::string winnerText = "";
 
@@ -67,7 +66,7 @@ int main(int argc, char* argv[]) {
     }
     bool musicPlaying = true;
 
-    // Load music note icon
+    // Load music note icons
     SDL_Surface* music_note_surface = IMG_Load("assets/music_note.png");
     if (!music_note_surface) {
         std::cerr << "Failed to load music note icon: " << IMG_GetError() << std::endl;
@@ -75,19 +74,46 @@ int main(int argc, char* argv[]) {
     }
     SDL_Texture* music_note_texture = SDL_CreateTextureFromSurface(renderer, music_note_surface);
     SDL_FreeSurface(music_note_surface);
+
+    SDL_Surface* music_note_slash_surface = IMG_Load("assets/music_note_slash.png");
+    if (!music_note_slash_surface) {
+        std::cerr << "Failed to load slashed music note icon: " << IMG_GetError() << std::endl;
+        return -1;
+    }
+    SDL_Texture* music_note_slash_texture = SDL_CreateTextureFromSurface(renderer, music_note_slash_surface);
+    SDL_FreeSurface(music_note_slash_surface);
+
     SDL_SetTextureBlendMode(music_note_texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(music_note_slash_texture, SDL_BLENDMODE_BLEND);
 
     while (true) {
         GameMode gameMode;
-        int difficulty = 1; // Default difficulty level
-        if (!showMenu(renderer, font, gameMode, difficulty, backgroundMusic, musicPlaying, music_note_texture)) {
-            // User chose to quit from the menu
+        int difficulty = 1;
+        if (!showMenu(renderer, font, gameMode, difficulty, backgroundMusic, musicPlaying, music_note_texture, music_note_slash_texture)) {
             break;
         }
 
         Paddle left_paddle(20, SCREEN_HEIGHT / 2 - Paddle::PADDLE_HEIGHT / 2, SCREEN_HEIGHT);
         Paddle right_paddle(SCREEN_WIDTH - 20 - Paddle::PADDLE_WIDTH, SCREEN_HEIGHT / 2 - Paddle::PADDLE_HEIGHT / 2, SCREEN_HEIGHT);
         Ball ball(SCREEN_WIDTH / 2 - Ball::BALL_SIZE / 2, SCREEN_HEIGHT / 2 - Ball::BALL_SIZE / 2);
+
+        if (difficulty == 1) {
+            ball.xVel = (rand() % 3 + 2); // Vận tốc ngang (2-4)
+            ball.yVel = (rand() % 3 + 2); // Vận tốc dọc (2-4)
+        }
+        else if (difficulty == 2) {
+            ball.xVel = (rand() % 4 + 4); // Vận tốc ngang (4-7)
+            ball.yVel = (rand() % 4 + 4); // Vận tốc dọc (4-7)
+        }
+        else if (difficulty == 3) {
+            ball.xVel = (rand() % 5 + 7); // Vận tốc ngang (7-11)
+            ball.yVel = (rand() % 5 + 7); // Vận tốc dọc (7-11)
+        }
+
+        // Đảm bảo bóng không di chuyển quá chậm hoặc ngẫu nhiên hướng
+        if (rand() % 2 == 0) ball.xVel = -ball.xVel; // Ngẫu nhiên hướng ngang
+        if (rand() % 2 == 0) ball.yVel = -ball.yVel; // Ngẫu nhiên hướng dọc
+
 
         Bot* bot = nullptr;
         if (gameMode == PVE) {
@@ -106,13 +132,18 @@ int main(int argc, char* argv[]) {
                     break;
                 }
                 else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-                    int pauseResult = showPauseMenu(renderer, font);
-                    if (pauseResult == -1) {
+                    if (gameOver) {
                         running = false;
                     }
-                    else if (pauseResult == 1) {
-                        running = false;
-                        break;
+                    else {
+                        int pauseResult = showPauseMenu(renderer, font);
+                        if (pauseResult == -1) {
+                            running = false;
+                        }
+                        else if (pauseResult == 1) {
+                            running = false;
+                            break;
+                        }
                     }
                 }
                 else if (event.type == SDL_MOUSEBUTTONDOWN) {
@@ -147,17 +178,17 @@ int main(int argc, char* argv[]) {
                 bot->update();
             }
 
-            ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, left_paddle.getRect());
-            ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, right_paddle.getRect());
+            ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, left_paddle.getRect(), difficulty);
+            ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, right_paddle.getRect(), difficulty);
 
             // Update scores
             if (ball.getRect().x <= 5) {
                 right_score++;
-                ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
+                ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT, difficulty);
             }
             else if (ball.getRect().x + ball.getRect().w >= SCREEN_WIDTH - 5) {
                 left_score++;
-                ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT);
+                ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT, difficulty);
             }
 
             if (left_score >= WINNING_SCORE) {
@@ -208,13 +239,49 @@ int main(int argc, char* argv[]) {
 
             // Render music toggle button
             SDL_Rect music_toggle_rect = { SCREEN_WIDTH - 60, 20, 40, 40 };
-            SDL_RenderCopy(renderer, music_note_texture, NULL, &music_toggle_rect);
+            if (musicPlaying) {
+                SDL_RenderCopy(renderer, music_note_texture, NULL, &music_toggle_rect);
+            }
+            else {
+                SDL_RenderCopy(renderer, music_note_slash_texture, NULL, &music_toggle_rect);
+            }
+
+            if (gameMode == PVE) {
+                if (left_score >= WINNING_SCORE) {
+                    gameOver = true;
+                    winnerText = "You Win!"; // Người chơi thắng
+                }
+                else if (right_score >= WINNING_SCORE) {
+                    gameOver = true;
+                    winnerText = "You Lose!"; // Bot thắng
+                }
+            }
+            else if (gameMode == PVP) {
+                if (left_score >= WINNING_SCORE) {
+                    gameOver = true;
+                    winnerText = "Left Player Wins!";
+                }
+                else if (right_score >= WINNING_SCORE) {
+                    gameOver = true;
+                    winnerText = "Right Player Wins!";
+                }
+            }
 
             if (gameOver) {
-                // Tải ảnh nền chiến thắng
-                SDL_Surface* bg_surface = IMG_Load("assets/win_background.png");
+                // Tải ảnh nền chiến thắng hoặc thất bại
+                SDL_Surface* bg_surface = nullptr;
+                if (winnerText == "You Win!") {
+                    bg_surface = IMG_Load("assets/win_background.png"); // Ảnh nền chiến thắng
+                }
+                else if (winnerText == "Left Player Wins!" || winnerText == "Right Player Wins!") {
+                    bg_surface = IMG_Load("assets/win_background.png");
+                }
+                else if (winnerText == "You Lose!") {
+                    bg_surface = IMG_Load("assets/lose_background.png"); // Ảnh nền thất bại
+                }
+
                 if (!bg_surface) {
-                    std::cerr << "Failed to load win background: " << IMG_GetError() << std::endl;
+                    std::cerr << "Failed to load background: " << IMG_GetError() << std::endl;
                 }
                 else {
                     SDL_Texture* bg_texture = SDL_CreateTextureFromSurface(renderer, bg_surface);
@@ -225,9 +292,9 @@ int main(int argc, char* argv[]) {
                     SDL_DestroyTexture(bg_texture);
                 }
 
-                // Hiển thị thông báo chiến thắng
-                SDL_Color red = { 255, 0, 0, 255 };
-                SDL_Surface* winner_surface = TTF_RenderText_Solid(font, winnerText.c_str(), red);
+                // Hiển thị thông báo kết quả
+                SDL_Color color = { 255, 0, 0, 255 }; // Màu đỏ cho chữ
+                SDL_Surface* winner_surface = TTF_RenderText_Solid(font, winnerText.c_str(), color);
                 SDL_Texture* winner_texture = SDL_CreateTextureFromSurface(renderer, winner_surface);
                 SDL_Rect winner_rect = { SCREEN_WIDTH / 2 - winner_surface->w / 2, SCREEN_HEIGHT / 2, winner_surface->w, winner_surface->h };
                 SDL_RenderCopy(renderer, winner_texture, NULL, &winner_rect);
@@ -237,13 +304,25 @@ int main(int argc, char* argv[]) {
                 SDL_FreeSurface(winner_surface);
                 SDL_DestroyTexture(winner_texture);
 
-                SDL_Delay(3000);
+                SDL_Delay(3000); // Đợi 3 giây trước khi thoát
+                bool waitForEsc = true;
+                while (waitForEsc) {
+                    while (SDL_PollEvent(&event)) {
+                        if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+                            waitForEsc = false;
+                        }
+                    }
+                }
                 running = false;
+                gameOver = false; // Reset gameOver flag
+                winnerText = ""; // Reset winnerText
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear screen
+                SDL_RenderClear(renderer);
+                SDL_RenderPresent(renderer);
             }
-
             // Present the updated screen
             SDL_RenderPresent(renderer);
-            SDL_Delay(16);
+            SDL_Delay(16); // Giới hạn tốc độ khung hình
         }
 
         if (bot) {
@@ -252,6 +331,7 @@ int main(int argc, char* argv[]) {
     }
 
     SDL_DestroyTexture(music_note_texture);
+    SDL_DestroyTexture(music_note_slash_texture);
     Mix_FreeMusic(backgroundMusic);
     Mix_FreeChunk(paddle_hit_sound);
     Mix_FreeChunk(buttonClickSound);

@@ -13,7 +13,7 @@ Ball::Ball(int x, int y) {
     yVel = 3;
 }
 
-void Ball::update(int screenWidth, int screenHeight, const SDL_Rect& paddleRect) {
+void Ball::update(int screenWidth, int screenHeight, const SDL_Rect& paddleRect,int difficulty) {
     // Update position based on velocity
     rect.x += xVel;
     rect.y += yVel;
@@ -39,7 +39,7 @@ void Ball::update(int screenWidth, int screenHeight, const SDL_Rect& paddleRect)
     // Handle collision with left and right screen edges
     if (rect.x <= 0 || rect.x + rect.w >= screenWidth) {
 
-        reset(screenWidth, screenHeight);
+        reset(screenWidth, screenHeight,difficulty);
     }
 }
 
@@ -61,24 +61,37 @@ void Ball::handleCollision(const SDL_Rect& rect) {
     reverseX();
 }
 
-void Ball::reset(int screenWidth, int screenHeight) {
+void Ball::reset(int screenWidth, int screenHeight, int difficulty) {
     // Đặt vị trí của quả bóng ở giữa màn hình
     rect.x = screenWidth / 2 - BALL_SIZE / 2;
     rect.y = screenHeight / 2 - BALL_SIZE / 2;
 
-    
+    // Thiết lập bộ sinh số ngẫu nhiên
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> directionX(-1, 1);
     std::uniform_int_distribution<> directionY(-1, 1);
 
-   
+    // Điều chỉnh tốc độ bóng dựa trên độ khó
+    int speedMultiplier = 0;
+    if (difficulty == 1) {
+        speedMultiplier = 3; // Dễ
+    }
+    else if (difficulty == 2) {
+        speedMultiplier = 5; // Trung bình
+    }
+    else if (difficulty == 3) {
+        speedMultiplier = 7; // Khó
+    }
+
+    // Đảm bảo vận tốc không bằng 0
     do {
-        xVel = 3 * directionX(gen);
-    } while (xVel == 0); // Đảm bảo xVel không bằng 0
+        xVel = speedMultiplier * directionX(gen);
+    } while (xVel == 0);
 
     do {
-        yVel = 3 * directionY(gen);
-    } while (yVel == 0); // Đảm bảo yVel không bằng 0
+        yVel = speedMultiplier * directionY(gen);
+    } while (yVel == 0);
 }
+
 
