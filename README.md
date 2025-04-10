@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # BTL
 =======
 # 🕹️ Game Pong – Bài tập lớn môn Lập trình Nâng Cao
@@ -26,7 +26,7 @@ Game được phát triển như một bài tập lớn cho môn *Lập trình N
 - **Cơ chế game**:
   - Bóng di chuyển và phản xạ khi va vào paddle
   - Ghi điểm và thông báo người thắng khi kết thúc trận
-  - Game tự khởi động lại sau khi kết thúc
+  - Sau khi kết thúc game sẽ reset,có thể bấm ESC để out ra menu và tiếp tục chơi
 
 - **Âm thanh & hình ảnh**:
   - Nhạc nền
@@ -34,7 +34,7 @@ Game được phát triển như một bài tập lớn cho môn *Lập trình N
   - Giao diện đơn giản, dễ thao tác
 
 - **Thiết kế hướng đối tượng**:
-  - Các class chính: `Game`, `Ball`, `Paddle`,`Bot`
+  - Các class chính:  `Ball`, `Paddle`,`Bot`,`Menu`
 
 ---
 
@@ -45,7 +45,11 @@ Cần cài đặt các thư viện sau:
 - `SDL2`
 - `SDL2_image`
 - `SDL2_mixer`
-- `SDL2_ttf` 
+- `SDL2_ttf`
+## ⬇️ Cách tải game
+
+
+
 ## 🚀 Cách biên dịch và chạy chương trình
 
 
@@ -57,7 +61,7 @@ pong-game/
 ├── assets/           # Ảnh, âm thanh, nhạc nền
 ├── Ball.cpp / Ball.h
 ├── Paddle.cpp / Paddle.h
-├── Game.cpp / Game.h
+└──Menu.cpp/Menu.h
 └──Bot.cpp/Bot.h
 ├── main.cpp
 └── README.md
@@ -86,6 +90,14 @@ https://www.youtube.com/watch?v=EWVXdvxMs1k
 - Có thể mở rộng thêm hiệu ứng, tăng độ khó hoặc tùy chọn chơi mạng trong tương lai.
 
 ---
+Về source code của game:
+Ball.cpp và Ball.h: Định nghĩa và triển khai lớp Ball, quản lý chuyển động và va chạm của bóng.
+Paddle.cpp và Paddle.h: Định nghĩa và triển khai lớp Paddle, xử lý điều khiển và hiển thị paddle của người chơi.
+Bot.cpp và Bot.h: Định nghĩa và triển khai lớp Bot, điều khiển paddle của máy (AI) trong chế độ chơi với máy.
+Menu.cpp và Menu.h: Quản lý giao diện menu chính,menu tạm dừng trong game, hiện thị các nút để người chơi tương tác.
+main.cpp: Hàm main() khởi tạo trò chơi, tạo cửa sổ game và quản lý vòng lặp chính, xử lý các input từ bàn phím vào.
+folder assets để lưu trữ âm thanh và ảnh của trò chơi.
 
 🎉 **Cảm ơn thầy đã xem qua sản phẩm của em!**
->>>>>>> 6acedac (Update README.md)
+
+
