@@ -47,12 +47,24 @@ Cần cài đặt các thư viện sau:
 - `SDL2_mixer`
 - `SDL2_ttf`
 ## ⬇️ Cách tải game
-#Cách 1: Tài ko bao gồm source code:
--Tải file nén, giải nén và chạy file .exe để chơi game tại link sau: https://drive.google.com/drive/folders/1UIkwJcgel3I4fHCtVg6-SCQrzOe1ukbm?fbclid=IwY2xjawGNvh5leHRuA2FlbQIxMAABHVQj4-ITpUksVDAW7LuHvUW8AZk0N7DjVy5Wy0cTr7OaNA47_cQicOzuvA_aem_EvZzzuGsjMeY5ZW7llLD7g
-#Cách 2: tải bao gồm source code:
-B1: Clone repo này bằng visual studio, quá trình sẽ mất khoảng 1 phút
-B2: Bấm tổ hợp phím Ctrl+Alt+L để hiện ra solution explorer sau đó bấm vào source files và header files để xem code.
-B3: Bấm Ctrl+F5 để chạy chương trình
+
+### 🟢 Cách 1: **Tải game không bao gồm source code**
+- Tải file nén `.zip`, sau đó giải nén và chạy file `.exe` để chơi game.
+- Link tải:  
+  👉 [Tải tại đây (Google Drive)](https://drive.google.com/drive/folders/1UIkwJcgel3I4fHCtVg6-SCQrzOe1ukbm?fbclid=IwY2xjawGNvh5leHRuA2FlbQIxMAABHVQj4-ITpUksVDAW7LuHvUW8AZk0N7DjVy5Wy0cTr7OaNA47_cQicOzuvA_aem_EvZzzuGsjMeY5ZW7llLD7g)
+
+---
+
+### 🔵 Cách 2: **Tải game kèm theo mã nguồn (source code)**
+1. Clone repository này về bằng Visual Studio  
+   *(hoặc chọn **Code → Download ZIP**).*
+2. Mở project trong Visual Studio.
+3. Nhấn `Ctrl + Alt + L` để mở **Solution Explorer**.
+4. Mở các thư mục `Source Files` và `Header Files` để xem code.
+5. Nhấn `Ctrl + F5` để chạy chương trình.
+
+---
+
 
 ## 📂 Cấu trúc thư mục 
 
