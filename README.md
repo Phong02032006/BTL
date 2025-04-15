@@ -97,19 +97,32 @@ https://www.youtube.com/watch?v=EWVXdvxMs1k
 
 ## 📌 Ghi chú thêm
 
-- Game sử dụng SDL2 để xử lý đồ họa, âm thanh, và sự kiện bàn phím.
+- Game sử dụng **SDL2** để xử lý đồ họa, âm thanh và sự kiện bàn phím.
 - AI trong chế độ chơi với máy phản ứng theo vị trí bóng.
-- Có thể mở rộng thêm hiệu ứng, tăng độ khó hoặc tùy chọn chơi mạng trong tương lai.
+- Có thể mở rộng thêm hiệu ứng, tăng độ khó hoặc thêm tùy chọn chơi mạng trong tương lai.
 
 ---
-Về source code của game:
-Ball.cpp và Ball.h: Định nghĩa và triển khai lớp Ball, quản lý chuyển động và va chạm của bóng.
-Paddle.cpp và Paddle.h: Định nghĩa và triển khai lớp Paddle, xử lý điều khiển và hiển thị paddle của người chơi.
-Bot.cpp và Bot.h: Định nghĩa và triển khai lớp Bot, điều khiển paddle của máy (AI) trong chế độ chơi với máy.
-Menu.cpp và Menu.h: Quản lý giao diện menu chính,menu tạm dừng trong game, hiện thị các nút để người chơi tương tác.
-main.cpp: Hàm main() khởi tạo trò chơi, tạo cửa sổ game và quản lý vòng lặp chính, xử lý các input từ bàn phím vào.
-folder assets để lưu trữ âm thanh và ảnh của trò chơi.
+
+### 📄 Về source code của game:
+
+- **Ball.cpp** và **Ball.h**:  
+  Định nghĩa và triển khai lớp **Ball**, quản lý chuyển động và va chạm của bóng.
+
+- **Paddle.cpp** và **Paddle.h**:  
+  Định nghĩa và triển khai lớp **Paddle**, xử lý điều khiển và hiển thị paddle của người chơi.
+
+- **Bot.cpp** và **Bot.h**:  
+  Định nghĩa và triển khai lớp **Bot**, điều khiển paddle của máy (**AI**) trong chế độ chơi với máy.
+
+- **Menu.cpp** và **Menu.h**:  
+  Quản lý giao diện **menu chính** và **menu tạm dừng** trong game, hiển thị các nút để người chơi tương tác.
+
+- **main.cpp**:  
+  Chứa hàm **main()**, khởi tạo trò chơi, tạo cửa sổ game, quản lý vòng lặp chính và xử lý các input từ bàn phím.
+
+- **Thư mục assets/**:  
+  Lưu trữ các tài nguyên như **âm thanh** và **hình ảnh** cho trò chơi.
+
+---
 
 🎉 **Cảm ơn thầy đã xem qua sản phẩm của em!**
-
-
