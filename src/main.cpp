@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // Load background music
+    
     Mix_Music* backgroundMusic = Mix_LoadMUS("assets/background_music3.wav");
     if (!backgroundMusic) {
         std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
     }
     bool musicPlaying = true;
 
-    // Load music note icons
+    
     SDL_Surface* music_note_surface = IMG_Load("assets/music_note.png");
     if (!music_note_surface) {
         std::cerr << "Failed to load music note icon: " << IMG_GetError() << std::endl;
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
             ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, left_paddle.getRect(), difficulty);
             ball.update(SCREEN_WIDTH, SCREEN_HEIGHT, right_paddle.getRect(), difficulty);
 
-            // Update scores
+            
             if (ball.getRect().x <= 5) {
                 right_score++;
                 ball.reset(SCREEN_WIDTH, SCREEN_HEIGHT, difficulty);
