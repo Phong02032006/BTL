@@ -20,9 +20,7 @@ void Ball::update(int screenWidth, int screenHeight, const SDL_Rect& paddleRect,
 
     
     if (rect.y <= 0 || rect.y + rect.h >= screenHeight) {
-        yVel = -yVel;
-
-        
+       reverseY();
         if (rect.y <= 0) {
             rect.y = 0;
         }
@@ -36,7 +34,6 @@ void Ball::update(int screenWidth, int screenHeight, const SDL_Rect& paddleRect,
     }
 
     if (rect.x <= 0 || rect.x + rect.w >= screenWidth) {
-
         reset(screenWidth, screenHeight,difficulty);
     }
 }
@@ -47,14 +44,12 @@ void Ball::render(SDL_Renderer* renderer) const {
 }
 
 bool Ball::checkCollision(const SDL_Rect& rect) const {
-
     return SDL_HasIntersection(&this->rect, &rect);
 }
 
 void Ball::handleCollision(const SDL_Rect& rect) {
     if (paddle_hit_sound) {
         Mix_PlayChannel(-1, paddle_hit_sound, 0);
-
     }
     reverseX();
 }
