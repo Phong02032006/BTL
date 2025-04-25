@@ -7,6 +7,12 @@
 Game được phát triển như một bài tập lớn cho môn *Lập trình Nâng Cao*.
 
 ---
+## 🎓 Thông tin tác giả
+
+- **Họ tên**: Nguyễn Tiên Phong  
+- **MSV**: 24022823
+- **Môn học**: Lập trình nâng cao  
+---
 
 ## 📌 Giới thiệu tính năng
 
@@ -86,18 +92,9 @@ pong-game/
 ```
 
 ---
-
-## 🎓 Thông tin tác giả
-
-- **Họ tên**: Nguyễn Tiên Phong  
-- **MSV**: 24022823
-- **Môn học**: Lập trình nâng cao  
----
-
 ## 🎬 Video demo
 
-https://www.youtube.com/watch?v=YcwWomDpAjI&list=PLhl0hMaBZsIyVEbiKiRU9pCMK9S5j0cHE
-
+https://www.youtube.com/watch?v=EWVXdvxMs1k&list=PLhl0hMaBZsIyVEbiKiRU9pCMK9S5j0cHE&index=2
 ---
 
 ## 📌 Ghi chú thêm
@@ -129,5 +126,21 @@ https://www.youtube.com/watch?v=YcwWomDpAjI&list=PLhl0hMaBZsIyVEbiKiRU9pCMK9S5j0
   Lưu trữ các tài nguyên như **âm thanh** và **hình ảnh** cho trò chơi.
 
 ---
+## 📈 Ngưỡng điểm đề xuất: **7.5 – 8.0**
+
+---
+
+## 🔍 Lý do đề xuất ngưỡng điểm
+
+- Dự án được phát triển với **sự hỗ trợ từ công cụ AI**, tuy nhiên em đã:
+  - **Hiểu được cấu trúc code** và các class chính như `Ball`, `Paddle`, `Bot`, `Menu`.
+  - **Tự tìm hiểu cách tích hợp** nhạc nền, hiệu ứng âm thanh, hiệu ứng hover cho menu.
+  - **Tự chỉnh sửa logic bot** và tổ chức lại menu theo hướng rõ ràng và dễ dùng hơn.
+  - **Triển khai các tính năng** như menu pause (`ESC`), reset game, điều khiển bằng bàn phím.
+- Tự học cách sử dụng và cài đặt **thư viện SDL2 và các thành phần liên quan** (`SDL2_image`, `SDL2_mixer`, `SDL2_ttf`).
+- Đã làm video demo và tổ chức repo đầy đủ tài liệu, file chạy và mã nguồn.
+- Update  game thường xuyên hàng tuần.
+---
+
 
 🎉 **Cảm ơn thầy đã xem qua sản phẩm của em!**
