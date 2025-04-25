@@ -9,6 +9,7 @@ Bot::Bot(Paddle& paddle, const Ball& ball, int difficulty)
 }
 
 void Bot::update() {
+
     int ballY = ball.getRect().y;
     int paddleY = paddle.getRect().y;
 
@@ -31,7 +32,7 @@ void Bot::update() {
         predictionFactor = 1.0f;
         randomnessFactor = 3.0f;
 
-
+    }
         int predictedBallY = ballY + static_cast<int>(ball.yVel * predictionFactor);
 
         predictedBallY += rand() % static_cast<int>(randomnessFactor) - static_cast<int>(randomnessFactor / 2);
@@ -49,4 +50,4 @@ void Bot::update() {
             paddle.rect.y = SCREEN_HEIGHT - Paddle::PADDLE_HEIGHT;
         }
     }
-}
+
