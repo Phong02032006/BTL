@@ -1,6 +1,6 @@
 
 # BTL
-=======
+
 # 🕹️ Game Pong – Bài tập lớn môn Lập trình Nâng Cao
 
 Đây là sản phẩm game **Pong cổ điển** được lập trình bằng **C++** và thư viện **SDL2**.  
@@ -32,6 +32,11 @@ Game được phát triển như một bài tập lớn cho môn *Lập trình N
   - Nhạc nền
   - Âm thanh va chạm, click chuột
   - Giao diện đơn giản, dễ thao tác
+ 
+- **Hiệu ứng hover trong menu**:
+  - Các nút bấm trong menu chính (PVP, PVE, Quit) sẽ có hiệu ứng hover khi di chuột qua.
+  - Viền của các nút sẽ được làm sáng lên khi hover để người chơi dễ dàng nhận diện lựa chọn.
+  - Tính năng này giúp cải thiện trải nghiệm người dùng và làm cho giao diện trở nên trực quan hơn.
 
 - **Thiết kế hướng đối tượng**:
   - Các class chính:  `Ball`, `Paddle`,`Bot`,`Menu`
@@ -91,7 +96,7 @@ pong-game/
 
 ## 🎬 Video demo
 
-https://www.youtube.com/watch?v=EWVXdvxMs1k
+https://www.youtube.com/watch?v=YcwWomDpAjI&list=PLhl0hMaBZsIyVEbiKiRU9pCMK9S5j0cHE
 
 ---
 
