@@ -1,7 +1,7 @@
 ﻿#include "bot.h"
 #include "ball.h"
 #include <cmath>
-#include <cstdlib> /
+#include <cstdlib> 
 const int SCREEN_HEIGHT = 600;
 
 Bot::Bot(Paddle& paddle, const Ball& ball, int difficulty)
