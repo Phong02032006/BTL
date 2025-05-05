@@ -31,8 +31,8 @@ void Bot::update() {
         speed *= 1.2f;
         predictionFactor = 1.0f;
         randomnessFactor = 3.0f;
-
     }
+    
         int predictedBallY = ballY + static_cast<int>(ball.yVel * predictionFactor);
 
         predictedBallY += rand() % static_cast<int>(randomnessFactor) - static_cast<int>(randomnessFactor / 2);
